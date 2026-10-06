@@ -1,4 +1,4 @@
-// NexaSupport Theme Provider
+// NexaSupport Theme Provider — single source of truth for the color theme
 
 "use client";
 
@@ -13,36 +13,59 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
+const STORAGE_KEY = "nexasupport-theme";
+
+function resolveIsLight(theme: Theme) {
+  if (theme === "light") return true;
+  if (theme === "system") return window.matchMedia("(prefers-color-scheme: light)").matches;
+  return false;
+}
+
+function applyTheme(theme: Theme) {
+  document.documentElement.classList.toggle("light", resolveIsLight(theme));
+}
+
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<Theme>("dark");
+  const [theme, setThemeState] = useState<Theme>("dark");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-    const stored = localStorage.getItem("nexasupport-theme") as Theme | null;
-    if (stored) {
-      setTheme(stored);
-    } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-      setTheme("dark");
-    }
+    const stored = localStorage.getItem(STORAGE_KEY) as Theme | null;
+    const initial: Theme = stored === "dark" || stored === "light" || stored === "system" ? stored : "dark";
+    applyTheme(initial);
+    const frame = requestAnimationFrame(() => {
+      setThemeState(initial);
+      setMounted(true);
+    });
+    return () => cancelAnimationFrame(frame);
   }, []);
 
+  // Follow OS preference while "system" is selected
   useEffect(() => {
-    if (!mounted) return;
-    const root = document.documentElement;
-    if (theme === "system") {
-      root.classList.toggle("light", window.matchMedia("(prefers-color-scheme: light)").matches);
-    } else {
-      root.classList.toggle("light", theme === "light");
-    }
-    localStorage.setItem("nexasupport-theme", theme);
+    if (!mounted || theme !== "system") return;
+    const mq = window.matchMedia("(prefers-color-scheme: light)");
+    const handler = () => applyTheme("system");
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
   }, [theme, mounted]);
 
+  const setTheme = (next: Theme) => {
+    setThemeState(next);
+    localStorage.setItem(STORAGE_KEY, next);
+    applyTheme(next);
+  };
+
+  const value = { theme, setTheme };
+
   if (!mounted) {
-    return <div className="min-h-screen bg-bg">{children}</div>;
+    return (
+      <ThemeContext.Provider value={value}>
+        <div className="min-h-screen bg-bg">{children}</div>
+      </ThemeContext.Provider>
+    );
   }
 
-  return <ThemeContext.Provider value={{ theme, setTheme }}>{children}</ThemeContext.Provider>;
+  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
 
 export function useTheme() {

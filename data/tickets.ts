@@ -4,20 +4,23 @@ import type { Ticket, TicketChannel, TicketStatus, TicketPriority } from "@/lib/
 import { customers } from "./customers";
 import { agents } from "./agents";
 import { departments } from "./departments";
+import { mulberry32 } from "@/lib/random";
+
+const rand = mulberry32(42);
 
 const channels: TicketChannel[] = ["Email", "Chat", "Phone", "Portal", "Social"];
 const statuses: TicketStatus[] = ["New", "Open", "Pending", "Resolved", "Closed"];
 const priorities: TicketPriority[] = ["Low", "Medium", "High", "Urgent"];
 
 function randomItem<T>(arr: T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)];
+  return arr[Math.floor(rand() * arr.length)];
 }
 
 function randomDate(daysAgo: number): string {
   const date = new Date();
-  date.setDate(date.getDate() - Math.floor(Math.random() * daysAgo));
-  date.setHours(Math.floor(Math.random() * 24));
-  date.setMinutes(Math.floor(Math.random() * 60));
+  date.setDate(date.getDate() - Math.floor(rand() * daysAgo));
+  date.setHours(Math.floor(rand() * 24));
+  date.setMinutes(Math.floor(rand() * 60));
   return date.toISOString();
 }
 
@@ -90,14 +93,14 @@ const ticketDescriptions = [
 export const tickets: Ticket[] = Array.from({ length: 50 }, (_, i) => {
   const customer = randomItem(customers);
   const dept = randomItem(departments);
-  const agent = dept.agentIds.length > 0 && Math.random() > 0.3
+  const agent = dept.agentIds.length > 0 && rand() > 0.3
     ? agents.find((a) => a.id === randomItem(dept.agentIds))
     : null;
   const status = randomItem(statuses);
   const priority = randomItem(priorities);
   const channel = randomItem(channels);
   const createdAt = randomDate(30);
-  const updatedAt = addMinutes(createdAt, Math.floor(Math.random() * 1440 * 7));
+  const updatedAt = addMinutes(createdAt, Math.floor(rand() * 1440 * 7));
 
   const slaFirstResponseMinutes = dept.slaFirstResponseMinutes;
   const slaResolutionMinutes = dept.slaResolutionMinutes;
@@ -109,13 +112,13 @@ export const tickets: Ticket[] = Array.from({ length: 50 }, (_, i) => {
   let closedAt: string | null = null;
 
   if (status !== "New" && status !== "Open") {
-    firstResponseAt = addMinutes(createdAt, Math.floor(Math.random() * slaFirstResponseMinutes * 1.5));
+    firstResponseAt = addMinutes(createdAt, Math.floor(rand() * slaFirstResponseMinutes * 1.5));
   }
   if (status === "Resolved" || status === "Closed") {
-    resolvedAt = addMinutes(createdAt, Math.floor(Math.random() * slaResolutionMinutes * 1.2));
+    resolvedAt = addMinutes(createdAt, Math.floor(rand() * slaResolutionMinutes * 1.2));
   }
   if (status === "Closed") {
-    closedAt = addMinutes(resolvedAt || createdAt, Math.floor(Math.random() * 1440));
+    closedAt = addMinutes(resolvedAt || createdAt, Math.floor(rand() * 1440));
   }
 
   return {
@@ -128,7 +131,7 @@ export const tickets: Ticket[] = Array.from({ length: 50 }, (_, i) => {
     customerId: customer.id,
     agentId: agent?.id ?? null,
     departmentId: dept.id,
-    tags: Array.from({ length: Math.floor(Math.random() * 3) + 1 }, () => randomItem(["bug", "feature", "billing", "api", "ui", "security", "performance", "integration"])),
+    tags: Array.from({ length: Math.floor(rand() * 3) + 1 }, () => randomItem(["bug", "feature", "billing", "api", "ui", "security", "performance", "integration"])),
     slaFirstResponseAt,
     slaResolutionAt,
     firstResponseAt,

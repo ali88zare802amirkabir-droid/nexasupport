@@ -6,8 +6,7 @@ import { use, useState } from "react";
 import { ArrowLeft, TicketCheck, MessageSquare, Clock, Star, TrendingUp, TrendingDown, Building2, Mail, MapPin, Phone, X, Activity } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { useApp, useTickets } from "@/lib/store";
-import { customers as initialCustomers } from "@/data/customers";
+import { useCustomers } from "@/lib/store";
 import { tickets } from "@/data/tickets";
 import { ticketMessages } from "@/data/ticketMessages";
 import { formatDate, formatRelativeTime, getStatusBadge, getPriorityBadge, getCustomerStatusBadge, cn, STATUS_LABELS_FA, PRIORITY_LABELS_FA, CUSTOMER_STATUS_LABELS_FA } from "@/lib/utils";
@@ -17,7 +16,8 @@ import { TrendChart, CountBarChart, DonutChart } from "@/components/charts";
 
 export default function CustomerDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const customer = initialCustomers.find((c) => c.id === id);
+  const customersList = useCustomers();
+  const customer = customersList.find((c) => c.id === id);
   if (!customer) notFound();
 
   const customerTickets = tickets.filter((t) => t.customerId === customer.id);
@@ -81,7 +81,7 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
       <Tabs tabs={[
         { id: "tickets", label: "تیکت‌ها", icon: <TicketCheck className="size-4" /> },
         { id: "conversations", label: "مکالمات", icon: <MessageSquare className="size-4" /> },
-        { id: "activity", label: "زمان‌بندی", icon: <Activity className="size-4" /> },
+        { id: "activity", label: "فعالیت", icon: <Activity className="size-4" /> },
         { id: "stats", label: "آمار", icon: <TrendingUp className="size-4" /> },
       ]} activeTab={activeTab} onChange={(id) => setActiveTab(id as typeof activeTab)} />
 
@@ -95,12 +95,12 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-edge">
-                  <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-ink-3">تیکت</th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-ink-3">موضوع</th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-ink-3">اولویت</th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-ink-3">وضعیت</th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-ink-3">ایجاد شده</th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-ink-3">عملیات</th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold text-ink-3">تیکت</th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold text-ink-3">موضوع</th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold text-ink-3">اولویت</th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold text-ink-3">وضعیت</th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold text-ink-3">ایجاد شده</th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold text-ink-3">عملیات</th>
                 </tr>
               </thead>
               <tbody>

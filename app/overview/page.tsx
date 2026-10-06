@@ -56,7 +56,7 @@ export default function OverviewPage() {
                     <span className="text-xs text-ink-3">از هفته قبل</span>
                   </div>
                 </div>
-                <div className={cn("size-12 rounded-xl flex items-center justify-center", `bg-[${kpi.color}15]`)} style={{ color: kpi.color }}>
+                <div className="size-12 rounded-xl flex items-center justify-center" style={{ color: kpi.color, backgroundColor: `${kpi.color}15` }}>
                   <kpi.icon className="size-6" />
                 </div>
               </div>

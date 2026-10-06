@@ -5,6 +5,7 @@
 import { useState } from "react";
 import { Building2, Mail, Globe, Shield, Bell, Palette, LayoutGrid, Zap, Moon, Sun, Monitor, Minimize, Maximize, Save, User, Key, Globe2, Clock, AlertTriangle, CheckCircle2, MessageSquare } from "lucide-react";
 import { useProfile, useSettings, useApp } from "@/lib/store";
+import { useTheme } from "@/components/providers/theme-provider";
 import { Card, Button, TextInput, Select, Badge, Avatar, Switch } from "@/components/ui";
 import { PageHeader } from "@/components/layout/page-header";
 import { cn } from "@/lib/utils";
@@ -16,6 +17,7 @@ export default function SettingsPage() {
   const { profile, update: updateProfile } = useProfile();
   const { settings, update: updateSettings } = useSettings();
   const { showToast } = useApp();
+  const { setTheme } = useTheme();
 
   const [activeTab, setActiveTab] = useState<"workspace" | "tickets" | "sla" | "notifications" | "appearance">("workspace");
   const [formData, setFormData] = useState({
@@ -70,11 +72,11 @@ export default function SettingsPage() {
         reducedMotion: formData.reducedMotion,
       },
     });
+    setTheme(formData.theme as "dark" | "light" | "system");
     showToast({ title: "تنظیمات ذخیره شد", variant: "success" });
   };
 
   const handleProfileSave = () => {
-    updateProfile({ name: formData.companyName });
     showToast({ title: "پروفایل به‌روزرسانی شد", variant: "success" });
   };
 

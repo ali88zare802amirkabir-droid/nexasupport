@@ -20,7 +20,7 @@ export function StackedBarChart({ data, keys, colors, height = 220, className }:
         <XAxis dataKey="label" tick={{ fill: "var(--ink-3)", fontSize: 11, fontFamily: "var(--font-sans)" }} axisLine={false} tickLine={false} />
         <YAxis tick={{ fill: "var(--ink-3)", fontSize: 11, fontFamily: "var(--font-sans)" }} axisLine={false} tickLine={false} />
         <Tooltip
-          contentStyle={{ backgroundColor: "var(--surface)", border: "1px solid var(--edge)", borderRadius: "12px", boxShadow: "var(--elevated)", color: "var(--ink)" }}
+          contentStyle={{ backgroundColor: "var(--surface)", border: "1px solid var(--edge)", borderRadius: "12px", boxShadow: "var(--shadow-elevated)", color: "var(--ink)" }}
           labelStyle={{ color: "var(--ink-3)", fontSize: 11 }}
         />
         <Legend

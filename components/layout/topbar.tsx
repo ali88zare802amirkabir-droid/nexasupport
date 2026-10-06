@@ -2,10 +2,10 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { ICONS } from "./nav";
 import { useSearch, useProfile, useSettings } from "@/lib/store";
+import { useTheme } from "@/components/providers/theme-provider";
 import { Avatar } from "@/components/ui";
 import { NotificationsPanel } from "./notifications-panel";
 import { CommandSearch } from "./command-search";
@@ -14,12 +14,7 @@ export function Topbar() {
   const { toggle: toggleSearch } = useSearch();
   const { profile } = useProfile();
   const { settings, update: updateSettings } = useSettings();
-
-  const [theme, setTheme] = useState(settings.appearance.theme);
-
-  useEffect(() => {
-    document.documentElement.classList.toggle("light", theme === "light");
-  }, [theme]);
+  const { theme, setTheme } = useTheme();
 
   const handleThemeChange = (newTheme: "dark" | "light" | "system") => {
     setTheme(newTheme);

@@ -323,7 +323,7 @@ export const Tabs = ({ tabs, activeTab, onChange, className }: {
         className={cn(
           "flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-fast",
           activeTab === tab.id
-            ? "bg-white text-ink shadow-card"
+            ? "bg-surface text-ink shadow-card"
             : "text-ink-3 hover:text-ink hover:bg-surface"
         )}
         role="tab"

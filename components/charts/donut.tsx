@@ -25,15 +25,16 @@ export function DonutChart({ data, height = 220, className, innerRadius = 70 }: 
           outerRadius={100}
           paddingAngle={2}
           dataKey="value"
+          nameKey="label"
           label={({ label, percent }) => `${label} ${(percent * 100).toFixed(0)}%`}
           labelLine={false}
         >
-          {data.map((_, index) => (
-            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+          {data.map((entry, index) => (
+            <Cell key={`cell-${index}`} fill={entry.color || COLORS[index % COLORS.length]} />
           ))}
         </Pie>
         <Tooltip
-          contentStyle={{ backgroundColor: "var(--surface)", border: "1px solid var(--edge)", borderRadius: "12px", boxShadow: "var(--elevated)", color: "var(--ink)" }}
+          contentStyle={{ backgroundColor: "var(--surface)", border: "1px solid var(--edge)", borderRadius: "12px", boxShadow: "var(--shadow-elevated)", color: "var(--ink)" }}
           formatter={(value: number) => [value, ""]}
         />
         <Legend

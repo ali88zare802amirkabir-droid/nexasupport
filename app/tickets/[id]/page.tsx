@@ -6,21 +6,21 @@ import { use, useState } from "react";
 import { ArrowLeft, Send, FileText, Tag, UserPlus, AlertTriangle, MoreVertical, CheckCircle2, Clock, AlertCircle, X, Edit2, Trash2, MessageSquare, Paperclip } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { useApp, useAgents, useCustomers } from "@/lib/store";
-import { tickets as initialTickets } from "@/data/tickets";
+import { useApp, useTickets } from "@/lib/store";
 import { ticketMessages } from "@/data/ticketMessages";
 import { departments } from "@/data/departments";
-import { formatDateTime, formatRelativeTime, getPriorityBadge, getStatusBadge, cn, PRIORITY_LABELS_FA, STATUS_LABELS_FA } from "@/lib/utils";
+import { formatDateTime, formatRelativeTime, getPriorityBadge, getStatusBadge, cn, uid, PRIORITY_LABELS_FA, STATUS_LABELS_FA, CHANNEL_LABELS_FA, AGENT_STATUS_LABELS_FA } from "@/lib/utils";
 import { Button, TextArea, Badge, Avatar, Card, Dropdown, Modal } from "@/components/ui";
 import { PageHeader } from "@/components/layout/page-header";
 
 export default function TicketDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const ticket = initialTickets.find((t) => t.id === id);
+  const storeTickets = useTickets();
+  const { agents, customers, updateTicket, addTicketMessage, addInternalNote, showToast } = useApp();
+  const ticket = storeTickets.find((t) => t.id === id);
   if (!ticket) notFound();
 
   const messages = ticketMessages.filter((m) => m.ticketId === ticket.id).sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
-  const { agents, customers, updateTicket, addTicketMessage, addInternalNote, showToast } = useApp();
   const customer = customers.find((c) => c.id === ticket.customerId);
   const agent = ticket.agentId ? agents.find((a) => a.id === ticket.agentId) : null;
   const dept = departments.find((d) => d.id === ticket.departmentId);
@@ -34,7 +34,7 @@ export default function TicketDetailPage({ params }: { params: Promise<{ id: str
   const handleReply = () => {
     if (!replyContent.trim()) return;
     addTicketMessage({
-      id: `msg-${Date.now()}`,
+      id: uid("msg"),
       ticketId: ticket.id,
       sender: "agent",
       senderId: "agt-01",
@@ -84,7 +84,7 @@ export default function TicketDetailPage({ params }: { params: Promise<{ id: str
             <Badge variant={getStatusBadge(ticket.status)}>{STATUS_LABELS_FA[ticket.status]}</Badge>
             <Badge variant={getPriorityBadge(ticket.priority)}>{PRIORITY_LABELS_FA[ticket.priority]}</Badge>
             <Badge variant="default" style={{ backgroundColor: dept?.color + "20", color: dept?.color }}>{dept?.name}</Badge>
-            <Badge variant="default">{ticket.channel}</Badge>
+            <Badge variant="default">{CHANNEL_LABELS_FA[ticket.channel] ?? ticket.channel}</Badge>
           </div>
           <h1 className="font-display text-xl sm:text-2xl font-bold text-ink mb-2">{ticket.subject}</h1>
           <p className="text-ink-3">{ticket.description}</p>
@@ -247,7 +247,7 @@ export default function TicketDetailPage({ params }: { params: Promise<{ id: str
                   >
                     <Avatar name={a.name} color={a.avatarColor} size="xs" />
                     <span className="text-sm font-medium text-ink">{a.name}</span>
-                    <Badge variant={a.status === "Online" ? "success" : a.status === "Away" ? "warning" : "default"} size="sm">{a.status}</Badge>
+                    <Badge variant={a.status === "Online" ? "success" : a.status === "Away" ? "warning" : "default"} size="sm">{AGENT_STATUS_LABELS_FA[a.status] ?? a.status}</Badge>
                   </button>
                 ))}
               </div>

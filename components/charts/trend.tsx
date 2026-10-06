@@ -13,8 +13,6 @@ interface TrendChartProps {
 }
 
 export function TrendChart({ data, color = "#55a1ff", height = 200, className, showArea = true }: TrendChartProps) {
-  const chartColor = `var(--${color.replace("#", "")})` || color;
-
   return (
     <ResponsiveContainer width="100%" height={height}>
       <LineChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
@@ -37,7 +35,7 @@ export function TrendChart({ data, color = "#55a1ff", height = 200, className, s
             backgroundColor: "var(--surface)",
             border: "1px solid var(--edge)",
             borderRadius: "12px",
-            boxShadow: "var(--elevated)",
+            boxShadow: "var(--shadow-elevated)",
             color: "var(--ink)",
           }}
           labelStyle={{ color: "var(--ink-3)", fontSize: 11 }}

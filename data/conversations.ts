@@ -4,9 +4,12 @@ import type { Conversation } from "@/lib/types";
 import { tickets } from "./tickets";
 import { customers } from "./customers";
 import { agents } from "./agents";
+import { mulberry32 } from "@/lib/random";
+
+const rand = mulberry32(21);
 
 function randomItem<T>(arr: T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)];
+  return arr[Math.floor(rand() * arr.length)];
 }
 
 const channels: ("Email" | "Chat" | "Phone" | "Portal" | "Social")[] = ["Email", "Chat", "Phone", "Portal", "Social"];
@@ -24,7 +27,7 @@ export const conversations: Conversation[] = Array.from({ length: 25 }, (_, i) =
     agentId: ticket.agentId,
     lastMessage: ticket.status === "New" ? "تیکت جدید ایجاد شده" : `آخرین پاسخ: ${ticket.status === "Resolved" ? "حل شده" : "در حال بررسی"}`,
     lastMessageAt: lastMsgTime,
-    unreadCount: ticket.status === "New" || ticket.status === "Open" ? Math.floor(Math.random() * 3) + 1 : 0,
+    unreadCount: ticket.status === "New" || ticket.status === "Open" ? Math.floor(rand() * 3) + 1 : 0,
     status: ticket.status === "Closed" ? "closed" : ticket.status === "Pending" ? "waiting" : "active",
     channel: ticket.channel,
     createdAt: ticket.createdAt,

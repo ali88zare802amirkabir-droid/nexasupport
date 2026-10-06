@@ -30,27 +30,40 @@ export function formatDateTime(dateString: string) {
   });
 }
 
+export function formatNumber(n: number) {
+  return n.toLocaleString("fa-IR");
+}
+
 export function formatRelativeTime(dateString: string) {
   const date = new Date(dateString);
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
-  const diffDays = Math.floor(diffMs / 86400000);
+  const absMs = Math.abs(diffMs);
+  const diffMins = Math.floor(absMs / 60000);
+  const diffHours = Math.floor(absMs / 3600000);
+  const diffDays = Math.floor(absMs / 86400000);
+
+  if (diffMs < 0) {
+    if (diffMins < 1) return "همین الان";
+    if (diffMins < 60) return `${formatNumber(diffMins)} دقیقه دیگر`;
+    if (diffHours < 24) return `${formatNumber(diffHours)} ساعت دیگر`;
+    if (diffDays < 7) return `${formatNumber(diffDays)} روز دیگر`;
+    return formatDate(dateString);
+  }
 
   if (diffMins < 1) return "همین الان";
-  if (diffMins < 60) return `${diffMins} دقیقه پیش`;
-  if (diffHours < 24) return `${diffHours} ساعت پیش`;
-  if (diffDays < 7) return `${diffDays} روز پیش`;
+  if (diffMins < 60) return `${formatNumber(diffMins)} دقیقه پیش`;
+  if (diffHours < 24) return `${formatNumber(diffHours)} ساعت پیش`;
+  if (diffDays < 7) return `${formatNumber(diffDays)} روز پیش`;
   return formatDate(dateString);
 }
 
 export function formatDuration(minutes: number) {
-  if (minutes < 60) return `${minutes} دقیقه`;
+  if (minutes < 60) return `${formatNumber(minutes)} دقیقه`;
   const hours = Math.floor(minutes / 60);
   const mins = minutes % 60;
-  if (mins === 0) return `${hours} ساعت`;
-  return `${hours} ساعت ${mins} دقیقه`;
+  if (mins === 0) return `${formatNumber(hours)} ساعت`;
+  return `${formatNumber(hours)} ساعت و ${formatNumber(mins)} دقیقه`;
 }
 
 export function getStatusBadge(status: TicketStatus): string {
@@ -153,11 +166,11 @@ export function getSLAStatus(targetAt: string | null, completedAt: string | null
 export function getSLARemaining(targetAt: string | null) {
   if (!targetAt) return null;
   const remaining = new Date(targetAt).getTime() - Date.now();
-  if (remaining <= 0) return "Breached";
+  if (remaining <= 0) return "نقض شده";
   const hours = Math.floor(remaining / 3600000);
   const minutes = Math.floor((remaining % 3600000) / 60000);
-  if (hours > 0) return `${hours}س ${minutes}د`;
-  return `${minutes}د`;
+  if (hours > 0) return `${formatNumber(hours)} ساعت و ${formatNumber(minutes)} دقیقه`;
+  return `${formatNumber(minutes)} دقیقه`;
 }
 
 export const STATUS_LABELS_FA: Record<string, string> = {

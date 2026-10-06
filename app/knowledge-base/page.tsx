@@ -84,7 +84,7 @@ export default function KnowledgeBasePage() {
       addArticle({
         id: `art-${Date.now()}`,
         title: formTitle,
-        slug: formTitle.toLowerCase().replace(/[\s\u200c]+/g, "-").replace(/[^\w\-]/g, ""),
+        slug: formTitle.toLowerCase().replace(/[\s\u200c]+/g, "-").replace(/[^\p{L}\p{N}\-]/gu, ""),
         category: formCategory,
         content: formContent,
         excerpt: formContent.slice(0, 150) + "...",
@@ -174,7 +174,7 @@ export default function KnowledgeBasePage() {
                 <td className="hidden lg:table-cell">
                   <div className="flex items-center gap-1">
                     <Eye className="size-3.5 text-ink-3" />
-                    <span className="text-sm text-ink-2">{article.views.toLocaleString()}</span>
+                    <span className="text-sm text-ink-2">{article.views.toLocaleString("fa-IR")}</span>
                   </div>
                 </td>
                 <td className="hidden lg:table-cell text-sm text-ink-2">{formatDate(article.updatedAt)}</td>

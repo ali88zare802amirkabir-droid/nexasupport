@@ -255,8 +255,6 @@
     text-align: right;
     font-size: 0.6875rem;
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
     color: var(--color-ink-3);
     border-bottom: 1px solid var(--color-edge);
   }
@@ -281,6 +279,30 @@
     justify-content: center;
     padding: 3rem 1rem;
     text-align: center;
+  }
+  .empty-state-icon {
+    color: var(--color-ink-3);
+    margin-bottom: 0.75rem;
+  }
+  .empty-state-icon svg {
+    width: 3rem;
+    height: 3rem;
+  }
+  .empty-state-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--color-ink);
+    margin-bottom: 0.25rem;
+  }
+  .empty-state-desc {
+    font-size: 0.875rem;
+    color: var(--color-ink-3);
+  }
+
+  .focus-ring:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 35%, transparent);
   }
 }
 

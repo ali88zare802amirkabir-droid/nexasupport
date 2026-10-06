@@ -3,36 +3,41 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { cn, formatRelativeTime } from "@/lib/utils";
+import { useRouter } from "next/navigation";
+import {
+  getPriorityBadge,
+  getStatusBadge,
+  STATUS_LABELS_FA,
+  PRIORITY_LABELS_FA,
+  CUSTOMER_STATUS_LABELS_FA,
+  AGENT_STATUS_LABELS_FA,
+  ARTICLE_STATUS_LABELS_FA,
+} from "@/lib/utils";
 import { ICONS } from "./nav";
-import { useSearch, useTickets, useCustomers, useApp } from "@/lib/store";
+import { useSearch, useTickets, useCustomers } from "@/lib/store";
 import { Badge, Avatar } from "@/components/ui";
-import { tickets as allTickets } from "@/data/tickets";
-import { customers } from "@/data/customers";
 import { articles } from "@/data/articles";
 import { agents } from "@/data/agents";
 
 export function CommandSearch() {
   const { open, toggle } = useSearch();
+  const router = useRouter();
   const tickets = useTickets();
   const customersList = useCustomers();
   const [query, setQuery] = useState("");
 
   useEffect(() => {
-    if (open) {
-      const handleKeyDown = (e: KeyboardEvent) => {
-        if ((e.metaKey || e.ctrlKey) && e.key === "k") {
-          e.preventDefault();
-          toggle();
-        }
-        if (e.key === "Escape") toggle();
-      };
-      document.addEventListener("keydown", handleKeyDown);
-      return () => document.removeEventListener("keydown", handleKeyDown);
-    }
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        toggle();
+        return;
+      }
+      if (e.key === "Escape" && open) toggle();
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
   }, [open, toggle]);
-
-  if (!open) return null;
 
   const results = useMemo(() => {
     if (!query.trim()) return { tickets: [], customers: [], articles: [], agents: [] };
@@ -46,7 +51,15 @@ export function CommandSearch() {
     };
   }, [query, tickets, customersList]);
 
+  if (!open) return null;
+
   const totalResults = results.tickets.length + results.customers.length + results.articles.length + results.agents.length;
+
+  const go = (href: string) => {
+    toggle();
+    setQuery("");
+    router.push(href);
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 px-4 animate-in fade-in duration-fast" onClick={toggle}>
@@ -80,17 +93,19 @@ export function CommandSearch() {
                     <h4 className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-ink-3">تیکت‌ها ({results.tickets.length})</h4>
                     <ul className="divide-y divide-edge/50">
                       {results.tickets.map((t) => (
-                        <li key={t.id} className="p-3 hover:bg-surface-2/50 rounded-xl transition-colors cursor-pointer">
-                          <div className="flex items-center justify-between gap-2">
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-ink truncate">{t.subject}</p>
-                              <div className="flex items-center gap-2 mt-1">
-                                <Badge variant={t.priority === "Urgent" ? "danger" : t.priority === "High" ? "warning" : t.priority === "Medium" ? "info" : "success"}>{t.priority}</Badge>
-                                <Badge variant={t.status === "Resolved" ? "success" : t.status === "Closed" ? "default" : t.status === "Pending" ? "warning" : "info"}>{t.status}</Badge>
+                        <li key={t.id}>
+                          <button onClick={() => go(`/tickets/${t.id}`)} className="w-full text-right p-3 hover:bg-surface-2/50 rounded-xl transition-colors cursor-pointer">
+                            <div className="flex items-center justify-between gap-2">
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium text-ink truncate">{t.subject}</p>
+                                <div className="flex items-center gap-2 mt-1">
+                                  <Badge variant={getPriorityBadge(t.priority)}>{PRIORITY_LABELS_FA[t.priority]}</Badge>
+                                  <Badge variant={getStatusBadge(t.status)}>{STATUS_LABELS_FA[t.status]}</Badge>
+                                </div>
                               </div>
+                              <span className="text-xs text-ink-3 shrink-0">{t.id}</span>
                             </div>
-                            <span className="text-xs text-ink-3 shrink-0">{t.id}</span>
-                          </div>
+                          </button>
                         </li>
                       ))}
                     </ul>
@@ -101,15 +116,17 @@ export function CommandSearch() {
                     <h4 className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-ink-3">مشتریان ({results.customers.length})</h4>
                     <ul className="divide-y divide-edge/50">
                       {results.customers.map((c) => (
-                        <li key={c.id} className="p-3 hover:bg-surface-2/50 rounded-xl transition-colors cursor-pointer">
-                          <div className="flex items-center gap-3">
-                            <Avatar name={c.name} color={c.avatarColor} size="sm" />
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-ink truncate">{c.name}</p>
-                              <p className="text-xs text-ink-3 truncate">{c.company} • {c.email}</p>
+                        <li key={c.id}>
+                          <button onClick={() => go(`/customers/${c.id}`)} className="w-full text-right p-3 hover:bg-surface-2/50 rounded-xl transition-colors cursor-pointer">
+                            <div className="flex items-center gap-3">
+                              <Avatar name={c.name} color={c.avatarColor} size="sm" />
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium text-ink truncate">{c.name}</p>
+                                <p className="text-xs text-ink-3 truncate">{c.company} • {c.email}</p>
+                              </div>
+                              <Badge variant={c.status === "VIP" ? "warning" : c.status === "Active" ? "success" : "default"}>{CUSTOMER_STATUS_LABELS_FA[c.status]}</Badge>
                             </div>
-                            <Badge variant={c.status === "VIP" ? "warning" : c.status === "Active" ? "success" : "default"}>{c.status}</Badge>
-                          </div>
+                          </button>
                         </li>
                       ))}
                     </ul>
@@ -120,14 +137,16 @@ export function CommandSearch() {
                     <h4 className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-ink-3">مقالات دانش‌نامه ({results.articles.length})</h4>
                     <ul className="divide-y divide-edge/50">
                       {results.articles.map((a) => (
-                        <li key={a.id} className="p-3 hover:bg-surface-2/50 rounded-xl transition-colors cursor-pointer">
-                          <div className="flex items-center justify-between gap-2">
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-ink truncate">{a.title}</p>
-                              <p className="text-xs text-ink-3 truncate">{a.excerpt}</p>
+                        <li key={a.id}>
+                          <button onClick={() => go(`/knowledge-base/${a.slug}`)} className="w-full text-right p-3 hover:bg-surface-2/50 rounded-xl transition-colors cursor-pointer">
+                            <div className="flex items-center justify-between gap-2">
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium text-ink truncate">{a.title}</p>
+                                <p className="text-xs text-ink-3 truncate">{a.excerpt}</p>
+                              </div>
+                              <Badge variant={a.status === "Published" ? "success" : a.status === "Draft" ? "default" : "warning"}>{ARTICLE_STATUS_LABELS_FA[a.status]}</Badge>
                             </div>
-                            <Badge variant={a.status === "Published" ? "success" : a.status === "Draft" ? "default" : "warning"}>{a.status}</Badge>
-                          </div>
+                          </button>
                         </li>
                       ))}
                     </ul>
@@ -138,15 +157,17 @@ export function CommandSearch() {
                     <h4 className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-ink-3">کارشناسان ({results.agents.length})</h4>
                     <ul className="divide-y divide-edge/50">
                       {results.agents.map((a) => (
-                        <li key={a.id} className="p-3 hover:bg-surface-2/50 rounded-xl transition-colors cursor-pointer">
-                          <div className="flex items-center gap-3">
-                            <Avatar name={a.name} color={a.avatarColor} size="sm" />
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-ink truncate">{a.name}</p>
-                              <p className="text-xs text-ink-3 truncate">{a.email} • {a.departmentId}</p>
+                        <li key={a.id}>
+                          <button onClick={() => go("/agents")} className="w-full text-right p-3 hover:bg-surface-2/50 rounded-xl transition-colors cursor-pointer">
+                            <div className="flex items-center gap-3">
+                              <Avatar name={a.name} color={a.avatarColor} size="sm" />
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium text-ink truncate">{a.name}</p>
+                                <p className="text-xs text-ink-3 truncate">{a.email}</p>
+                              </div>
+                              <Badge variant={a.status === "Online" ? "success" : a.status === "Away" ? "warning" : "default"}>{AGENT_STATUS_LABELS_FA[a.status]}</Badge>
                             </div>
-                            <Badge variant={a.status === "Online" ? "success" : a.status === "Away" ? "warning" : "default"}>{a.status}</Badge>
-                          </div>
+                          </button>
                         </li>
                       ))}
                     </ul>

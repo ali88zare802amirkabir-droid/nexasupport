@@ -4,16 +4,20 @@ import type { Activity } from "@/lib/types";
 import { tickets } from "./tickets";
 import { customers } from "./customers";
 import { agents } from "./agents";
+import { mulberry32 } from "@/lib/random";
+import { STATUS_LABELS_FA, PRIORITY_LABELS_FA } from "@/lib/utils";
+
+const rand = mulberry32(7);
 
 function randomItem<T>(arr: T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)];
+  return arr[Math.floor(rand() * arr.length)];
 }
 
 function randomDate(daysAgo: number): string {
   const date = new Date();
-  date.setDate(date.getDate() - Math.floor(Math.random() * daysAgo));
-  date.setHours(Math.floor(Math.random() * 24));
-  date.setMinutes(Math.floor(Math.random() * 60));
+  date.setDate(date.getDate() - Math.floor(rand() * daysAgo));
+  date.setHours(Math.floor(rand() * 24));
+  date.setMinutes(Math.floor(rand() * 60));
   return date.toISOString();
 }
 
@@ -36,20 +40,27 @@ export const activities: Activity[] = Array.from({ length: 40 }, (_, i) => {
   const ticket = randomItem(tickets);
   const customer = customers.find((c) => c.id === ticket.customerId);
   const agent = ticket.agentId ? agents.find((a) => a.id === ticket.agentId) : randomItem(agents);
-  const actor = Math.random() > 0.5 ? agent : customer;
+  const actor = rand() > 0.5 ? agent : customer;
   const actorType = actor === agent ? "agent" : "customer";
 
   const createdAt = randomDate(14);
-  let description = template.desc
+  const oldStatus = randomItem(statuses);
+  let newStatus = randomItem(statuses);
+  while (newStatus === oldStatus) newStatus = randomItem(statuses);
+  const oldPriority = randomItem(priorities);
+  let newPriority = randomItem(priorities);
+  while (newPriority === oldPriority) newPriority = randomItem(priorities);
+
+  const description = template.desc
     .replace("{ticketId}", ticket.id)
     .replace("{subject}", ticket.subject)
     .replace("{agentName}", agent?.name ?? "سیستم")
     .replace("{actorName}", actor?.name ?? "سیستم")
     .replace("{customerName}", customer?.name ?? "مشتری")
-    .replace("{oldStatus}", randomItem(statuses))
-    .replace("{newStatus}", randomItem(statuses))
-    .replace("{oldPriority}", randomItem(priorities))
-    .replace("{newPriority}", randomItem(priorities));
+    .replace("{oldStatus}", STATUS_LABELS_FA[oldStatus])
+    .replace("{newStatus}", STATUS_LABELS_FA[newStatus])
+    .replace("{oldPriority}", PRIORITY_LABELS_FA[oldPriority])
+    .replace("{newPriority}", PRIORITY_LABELS_FA[newPriority]);
 
   return {
     id: `act-${String(i + 1).padStart(3, "0")}`,

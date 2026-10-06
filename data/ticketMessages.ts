@@ -4,9 +4,12 @@ import type { TicketMessage, Attachment } from "@/lib/types";
 import { tickets } from "./tickets";
 import { customers } from "./customers";
 import { agents } from "./agents";
+import { mulberry32 } from "@/lib/random";
+
+const rand = mulberry32(1337);
 
 function randomItem<T>(arr: T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)];
+  return arr[Math.floor(rand() * arr.length)];
 }
 
 function addMinutes(dateStr: string, minutes: number): string {
@@ -50,15 +53,15 @@ const internalNotes = [
 export const ticketMessages: TicketMessage[] = [];
 
 tickets.forEach((ticket) => {
-  const msgCount = Math.floor(Math.random() * 5) + 2;
+  const msgCount = Math.floor(rand() * 5) + 2;
   let lastTime = ticket.createdAt;
 
   for (let i = 0; i < msgCount; i++) {
     const isCustomer = i === 0 || (i % 2 === 0 && ticket.status !== "New");
-    const isInternal = !isCustomer && Math.random() < 0.2;
+    const isInternal = !isCustomer && rand() < 0.2;
 
     if (isCustomer) {
-      lastTime = addMinutes(lastTime, Math.floor(Math.random() * 120) + 5);
+      lastTime = addMinutes(lastTime, Math.floor(rand() * 120) + 5);
       ticketMessages.push({
         id: `msg-${ticket.id}-${i}`,
         ticketId: ticket.id,
@@ -70,7 +73,7 @@ tickets.forEach((ticket) => {
         createdAt: lastTime,
       });
     } else if (ticket.agentId) {
-      lastTime = addMinutes(lastTime, Math.floor(Math.random() * 180) + 10);
+      lastTime = addMinutes(lastTime, Math.floor(rand() * 180) + 10);
       ticketMessages.push({
         id: `msg-${ticket.id}-${i}`,
         ticketId: ticket.id,
@@ -85,7 +88,7 @@ tickets.forEach((ticket) => {
   }
 
   if (ticket.status === "Resolved" || ticket.status === "Closed") {
-    lastTime = addMinutes(lastTime, Math.floor(Math.random() * 60) + 5);
+    lastTime = addMinutes(lastTime, Math.floor(rand() * 60) + 5);
     ticketMessages.push({
       id: `msg-${ticket.id}-resolve`,
       ticketId: ticket.id,

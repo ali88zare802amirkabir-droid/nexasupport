@@ -2,9 +2,12 @@
 
 import type { KnowledgeArticle } from "@/lib/types";
 import { agents } from "./agents";
+import { mulberry32 } from "@/lib/random";
+
+const rand = mulberry32(99);
 
 function randomItem<T>(arr: T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)];
+  return arr[Math.floor(rand() * arr.length)];
 }
 
 const categories = [
@@ -44,7 +47,7 @@ const articleData = [
 export const articles: KnowledgeArticle[] = articleData.map((a, i) => ({
   id: `art-${String(i + 1).padStart(3, "0")}`,
   title: a.title,
-  slug: a.title.toLowerCase().replace(/[\s\u200c]+/g, "-").replace(/[^\w\-]/g, ""),
+  slug: a.title.toLowerCase().replace(/[\s\u200c]+/g, "-").replace(/[^\p{L}\p{N}\-]/gu, ""),
   category: a.category,
   content: a.content,
   excerpt: a.excerpt,
@@ -54,6 +57,6 @@ export const articles: KnowledgeArticle[] = articleData.map((a, i) => ({
   notHelpful: a.notHelpful,
   authorId: randomItem(agents).id,
   tags: [a.category, "راهنمای"],
-  createdAt: new Date(Date.now() - Math.random() * 365 * 86400000).toISOString(),
-  updatedAt: new Date(Date.now() - Math.random() * 30 * 86400000).toISOString(),
+  createdAt: new Date(Date.now() - rand() * 365 * 86400000).toISOString(),
+  updatedAt: new Date(Date.now() - rand() * 30 * 86400000).toISOString(),
 }));

@@ -13,7 +13,6 @@ import { agents } from "@/data/agents";
 import { departments } from "@/data/departments";
 import { slaRecords } from "@/data/sla";
 import { satisfactionRecords } from "@/data/satisfaction";
-import { cn, formatDuration, PRIORITY_LABELS_FA, STATUS_LABELS_FA } from "@/lib/utils";
 
 export default function AnalyticsPage() {
   const [period, setPeriod] = useState<"7d" | "30d" | "90d">("7d");
@@ -71,7 +70,7 @@ export default function AnalyticsPage() {
                   <p className="text-sm text-ink-3">{kpi.label}</p>
                   <p className="font-display text-2xl font-bold text-ink">{kpi.value}</p>
                 </div>
-                <div className={cn("size-12 rounded-xl flex items-center justify-center", `bg-[${kpi.color}15]`)} style={{ color: kpi.color }}>
+                <div className="size-12 rounded-xl flex items-center justify-center" style={{ color: kpi.color, backgroundColor: `${kpi.color}15` }}>
                   <kpi.icon className="size-6" />
                 </div>
               </div>
@@ -134,7 +133,7 @@ export default function AnalyticsPage() {
             <StackedBarChart
               data={resolutionTrend.map((d) => ({ label: d.label, created: d.created, resolved: d.resolved }))}
               keys={["created", "resolved"]}
-              colors={["var(--accent)", "var(--ok)"].map((c) => c.replace("var(--", "").replace(")", ""))}
+              colors={["var(--accent)", "var(--ok)"]}
               height={300}
             />
           </div>
@@ -183,7 +182,7 @@ export default function AnalyticsPage() {
             <thead>
               <tr className="border-b border-edge">
                 {["کارشناس", "تخصیص‌یافته", "حل شده", "نرخ حل", "میانگین پاسخ (دقیقه)", "رضایت", "وضعیت"].map((h) => (
-                  <th key={h} className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-ink-3">{h}</th>
+                  <th key={h} className="px-4 py-3 text-right text-xs font-semibold text-ink-3">{h}</th>
                 ))}
               </tr>
             </thead>

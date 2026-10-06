@@ -4,16 +4,19 @@ import type { Notification, NotificationType } from "@/lib/types";
 import { tickets } from "./tickets";
 import { agents } from "./agents";
 import { customers } from "./customers";
+import { mulberry32 } from "@/lib/random";
+
+const rand = mulberry32(555);
 
 function randomItem<T>(arr: T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)];
+  return arr[Math.floor(rand() * arr.length)];
 }
 
 function randomDate(daysAgo: number): string {
   const date = new Date();
-  date.setDate(date.getDate() - Math.floor(Math.random() * daysAgo));
-  date.setHours(Math.floor(Math.random() * 24));
-  date.setMinutes(Math.floor(Math.random() * 60));
+  date.setDate(date.getDate() - Math.floor(rand() * daysAgo));
+  date.setHours(Math.floor(rand() * 24));
+  date.setMinutes(Math.floor(rand() * 60));
   return date.toISOString();
 }
 
@@ -57,7 +60,7 @@ export const notifications: Notification[] = Array.from({ length: 25 }, (_, i) =
       .replace("{customerName}", customer?.name ?? "مشتری")
       .replace("{agentName}", agent.name)
       .replace("{remaining}", "۱۵ دقیقه"),
-    read: Math.random() > 0.4,
+    read: rand() > 0.4,
     relatedId: ticket.id,
     relatedType: "ticket",
     createdAt: randomDate(7),
